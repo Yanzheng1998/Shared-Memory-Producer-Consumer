@@ -62,7 +62,7 @@ char *DequeueString(Queue *q) {
     }
     char *temp = q->string[q->front];
     q->string[q->front] = "";
-    q->dequeueCount--;
+    q->dequeueCount++;
     q->size--;
     q->front++;
     if (q->front == q->capacity) {
