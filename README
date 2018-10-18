@@ -1,0 +1,13 @@
+    In this home work we realize the producer/consumer problem with 4 threads. Producer cannot produce
+when the buffer store stuff is full and consumer cannot consume when the buffer is empty. The buffer is 
+implemeted by queue, and the constraint on production and consumption are realized by add monitor on 
+enqueue and dequeue. Enqueue cannot happen when the queue is full unless it is signaled there is new space .
+Dequeue cannot happen when the queue is empty unless it is signaled there is new element in queue. Dequeue
+and enqueue are both critical sections. There are 3 queues q1, q2, q3 in this program used as buffer
+The 4 threads are reader, munch1, munch2 and writer. Reader reada line up to length of 1024 char from stdin 
+an store it in queue1 if it is the last line, also enqueue a NULL to let Munch1 know when to end,then exit .
+Munch1 get a line from q1 and change space in it to asterisk and put the changed line to q2. When it read the
+NULL passed by reader, it enqueue a NULL to q2 let munch2 know when to end, then exit. Munch2 get a line from q2 
+and change the lower case to uppercase. When the NULL get by munch2, it enqueue a NULL to q3,then exit. Writer 
+writes lines in q3 to stdout then free the pointers to the lines. When NULL is get, the writer exit. After all threads
+finished, main prints the stats of each queue and free the three q3.

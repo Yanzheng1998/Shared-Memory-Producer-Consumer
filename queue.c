@@ -11,20 +11,24 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+//This function initialize the queue;
 Queue *CreateStringQueue(int size) {
     Queue *newQ = (Queue *)malloc(sizeof(Queue));
-    if (!newQ) {
-        printf("malloc failed, null pointer");
+    if (newQ==NULL) {
+        fprintf(stderr,"malloc failed, null pointer");
+        free(newQ);
         return NULL;
     }
     newQ->string = (char **)malloc(sizeof(char *)*size);
-    if (!newQ->string) {
-        printf("malloc failed, null pointer");
+    if (newQ->string==NULL) {
+        fprintf(stderr,"malloc failed, null pointer");
+        free(newQ->string);
+        free(newQ);
         return NULL;
     }
     newQ->capacity = size;
+    //initialize the mutex lock;
     newQ->lock1 = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
-//    newQ->lock2 = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
     newQ->enQ = (pthread_cond_t)PTHREAD_COND_INITIALIZER;
     newQ->deQ = (pthread_cond_t)PTHREAD_COND_INITIALIZER;
     newQ->size = 0;
@@ -32,44 +36,59 @@ Queue *CreateStringQueue(int size) {
     newQ->dequeueCount = 0;
     newQ->enqueueBlockCount = 0;
     newQ->enqueueCount = 0;
+    //initialize the head and tail pointers of the queue
     newQ->front = 0;
     newQ->end = -1;
     return newQ;
 }
 
+//implement enqueue
 void EnqueueString(Queue *q, char *string) {
+    //enter critical seciton
     pthread_mutex_lock(&(q->lock1));
+    //if the queue if full, wait for space
     if(q->size == q->capacity) {
         q->enqueueBlockCount++;
         pthread_cond_wait(&(q->enQ),&(q->lock1));
     }
     q->size++;
     q->end++;
+    //keep a circle manner
     if (q->end == q->capacity) {
         q->end = 0;
     }
-    q->string[q->end] = string;
+    //assign the value after the tail of the queue
+    (q->string)[q->end] = string;
     q->enqueueCount++;
-    pthread_mutex_unlock(&(q->lock1));
+    //signal there is element in queue
     pthread_cond_signal(&(q->deQ));
+    pthread_mutex_unlock(&(q->lock1));
+
 }
 
+//implement dequeue
 char *DequeueString(Queue *q) {
+    //enter critical section
     pthread_mutex_lock(&(q->lock1));
+    //if it is empty, wait until it has valid element
     if(q->size == 0) {
         q->dequeueBlockCount++;
-        pthread_cond_wait(&(q->deQ),&(q->lock1)); 
+        pthread_cond_wait(&(q->deQ),&(q->lock1));
     }
+    //assign the head pointer to the return value
     char *temp = q->string[q->front];
-    q->string[q->front] = "";
+    //set the front to NULL
+    q->string[q->front] = NULL;
     q->dequeueCount++;
     q->size--;
+    //keep a circle manner of the queue
     q->front++;
     if (q->front == q->capacity) {
         q->front = 0;
     }
-    pthread_mutex_unlock(&(q->lock1));
+    //signal that there is space in queueu
     pthread_cond_signal(&(q->enQ));
+    pthread_mutex_unlock(&(q->lock1));
     return temp;
 }
 
