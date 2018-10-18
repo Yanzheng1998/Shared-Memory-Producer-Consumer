@@ -24,7 +24,7 @@ queue.o: queue.c
 	$(CC) $(WARNING_FLAGS) -c queue.c $(PTHREAD)
 
 clean:
-	rm $(EXE) *.o
+	rm -f $(EXE) *.o
 	rm -rf $(SCAN_BUILD_DIR)
 
 #

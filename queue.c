@@ -1,8 +1,8 @@
 //
 //  queue.c
-//  537program2
 //
 //  Created by Yanzheng Li on 10/15/18.
+//  Completed by Yanzheng Li and Yi Tong
 //  Copyright © 2018 Yanzheng Li. All rights reserved.
 //
 
@@ -58,8 +58,8 @@ void EnqueueString(Queue *q, char *string) {
         q->end = 0;
     }
     //assign the value after the tail of the queue
-    (q->string)[q->end] = string;
-    q->enqueueCount++;
+    if (((q->string)[q->end] = string)!=NULL)
+        q->enqueueCount++;
     //signal there is element in queue
     pthread_cond_signal(&(q->deQ));
     pthread_mutex_unlock(&(q->lock1));
@@ -77,9 +77,11 @@ char *DequeueString(Queue *q) {
     }
     //assign the head pointer to the return value
     char *temp = q->string[q->front];
+        if (temp!=NULL) {
+            q->dequeueCount++;
+        }
     //set the front to NULL
     q->string[q->front] = NULL;
-    q->dequeueCount++;
     q->size--;
     //keep a circle manner of the queue
     q->front++;

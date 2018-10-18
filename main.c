@@ -3,6 +3,7 @@
 //  queue.c
 //
 //  Created by Yanzheng Li on 10/15/18.
+//  Completed by Yanzheng Li and Yi Tong
 //  Copyright © 2018 Yanzheng Li. All rights reserved.
 //
 
@@ -33,9 +34,10 @@ void *Writer(void *q);
 
 int main() {
     //create 3 queues
-    Queue* q1 = CreateStringQueue(10);
-    Queue* q2 = CreateStringQueue(10);
-    Queue* q3 = CreateStringQueue(10);
+    int size_q = 10;
+    Queue* q1 = CreateStringQueue(size_q);
+    Queue* q2 = CreateStringQueue(size_q);
+    Queue* q3 = CreateStringQueue(size_q);
     //initialize the parameter for m1 and m2
     myarg_t m1 = {q1, q2};
     myarg_t m2 = {q2, q3};
@@ -67,7 +69,7 @@ int main() {
     pthread_join(thread3,NULL);
     pthread_join(thread4,NULL);
     //for better readability
-    printf("%c",endline);
+    printf("=======================Finished========================%C",endline);
     //print stats
     PrintQueueStats(q1);
     PrintQueueStats(q2);
@@ -141,9 +143,10 @@ void *Munch1(void *arg) {
 
 void *Munch2(void *args) {
     myarg_t *m = (myarg_t *)args;
-    char *input = DequeueString(m->in);
-    //check
+    char *input;
+    input = DequeueString(m->in);
     int count = 0;
+    //change the lower case into upper case
     while(input!=NULL) {
         while(input[count]!=endstr && input[count]!=endline) {
             if(islower(input[count])) {
@@ -164,7 +167,6 @@ void *Writer(void *q) {
     output = DequeueString(q);
     while (output!=NULL){
         printf("%s",output);
-        fflush(stdout);
         free(output);
         output = DequeueString(q);
     }
