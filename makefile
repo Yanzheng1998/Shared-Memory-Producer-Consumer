@@ -14,14 +14,27 @@ EXE = prodcomm
 SCAN_BUILD_DIR = scan-build-out
 PTHREAD = -lpthread
 
-all: main.o queue.o 
-	$(CC) -o $(EXE) main.o queue.o $(PTHREAD)
+all: main.o queue.o Reader.o Munch1.o Munch2.o writer.o
+	$(CC) -o $(EXE) main.o queue.o Reader.o Munch1.o Munch2.o writer.o $(PTHREAD)
 
-main.o: main.c queue.h
+main.o: main.c queue.h Reader.h Munch1.h Munch2.h writer.h
 	$(CC) $(WARNING_FLAGS) -c main.c $(PTHREAD)
 
 queue.o: queue.c 
 	$(CC) $(WARNING_FLAGS) -c queue.c $(PTHREAD)
+
+Reader.o: Reader.c queue.h
+	$(CC) $(WARNING_FLAGS) -c Reader.c $(PTHREAD)
+
+Writer.o: writer.c queue.h Reader.h
+	$(CC) $(WARNING_FLAGS) -c Reader.c $(PTHREAD)
+
+Munch1.o: Munch1.c queue.h Reader.h
+	$(CC) $(WARNING_FLAGS) -c Munch1.c $(PTHREAD)
+
+Munch2.o: Munch2.c queue.h Reader.h
+	$(CC) $(WARNING_FLAGS) -c Munch2.c $(PTHREAD)
+
 
 clean:
 	rm -f $(EXE) *.o

@@ -13,8 +13,6 @@
 #include <stdio.h>
 #include <semaphore.h>
 
-#endif /* queue_h */
-
 typedef struct Queue
 {
     int capacity;
@@ -32,6 +30,8 @@ typedef struct Queue
     char** string;
 }Queue;
 
+#endif /* queue_h */
+
 Queue *CreateStringQueue(int size);
 
 void EnqueueString(Queue *q, char *string);
@@ -39,4 +39,5 @@ void EnqueueString(Queue *q, char *string);
 char *DequeueString(Queue *q);
 
 void PrintQueueStats(Queue *q);
+
 

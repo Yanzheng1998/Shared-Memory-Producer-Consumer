@@ -1,36 +1,25 @@
 //
 //  main.c
 //  queue.c
+//  Reader.c
+//  Munch1.c
+//  Munch2.c
+//  writer.c
 //
 //  Created by Yanzheng Li on 10/15/18.
-//  Completed by Yanzheng Li and Yi Tong
+//  Completed by Yanzheng Li, net id: 9075265638, cs login: yanzheng
+//  and Yi Tong net id: 9075617911, cs login: ytong
 //  Copyright © 2018 Yanzheng Li. All rights reserved.
 //
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
 #include <pthread.h>
-#include <ctype.h>
 #include "queue.h"
-
-#define BUFF_SIZE 1024
-#define SPACE 32
-#define ASTERISK 42
-
-const char endline = '\n';
-const char endstr = '\0';
-
-//used as parameter for munch1 and munch2
-typedef struct myarg_t{
-    Queue *in;
-    Queue *out;
-} myarg_t;
-
-void *Reader(void *q);
-void *Munch1(void *arg);
-void *Munch2(void *arg);
-void *Writer(void *q);
+#include "Reader.h"
+#include "writer.h"
+#include "Munch1.h"
+#include "Munch2.h"
 
 int main() {
     //create 3 queues
@@ -68,8 +57,6 @@ int main() {
     pthread_join(thread2,NULL);
     pthread_join(thread3,NULL);
     pthread_join(thread4,NULL);
-    //for better readability
-    printf("=======================Finished========================%C",endline);
     //print stats
     PrintQueueStats(q1);
     PrintQueueStats(q2);
@@ -77,98 +64,6 @@ int main() {
     free(q1);
     free(q2);
     free(q3);
-    return 0;
+    return 0 ;
 }
 
-//read from stdin
-void *Reader(void *arg) {
-    int count = 0;
-    Queue *q = (Queue *)arg;
-    char *input = (char *)calloc(BUFF_SIZE,sizeof(char));
-    char index = SPACE;
-    //repeatedly read one char from stdin until EOF read
-    while ((input[count]=getc(stdin))!=EOF) {
-        //if the line exceed buffersize,dicard it
-        if(count>BUFF_SIZE-1) {
-            fprintf(stderr, "This line exceeds the max length, dicarded.\n");
-            //the line discarded, so it should be freed here.
-            free(input);
-            while ((index=getc(stdin))!=endline){
-                if (index==EOF) {
-                    EnqueueString(q, NULL);
-                    pthread_exit(NULL);
-                }
-            }
-            //assign new mem for the pointer
-            input = (char *)calloc(BUFF_SIZE,sizeof(char));
-            count = 0;
-            continue;
-        }
-        // enqueue the line
-        else if(input[count]==endline) {
-            EnqueueString(q, input);
-            input = (char *)calloc(BUFF_SIZE,sizeof(char));
-            count = 0;
-            continue;
-        }
-        count++;
-    }
-    //check if the first char of the file is EOF
-    if (count!=0){
-        input[count] = endstr;
-        EnqueueString(q, input);
-    }
-    EnqueueString(q, NULL);
-    pthread_exit(NULL);
-}
-
-//change the space in the content read from stdin to asterisk
-void *Munch1(void *arg) {
-    char *count;
-    myarg_t *m = (myarg_t *) arg;
-    //get a line  read by reader from queue
-    char *input = DequeueString(m->in);
-    while (input!=NULL) {
-        count = index(input,SPACE);
-        while (count!=NULL) {
-            count[0] = ASTERISK;
-            count = index(count,SPACE);
-        }
-        EnqueueString(m->out, input);
-        input = DequeueString(m->in);
-    }
-    EnqueueString(m->out, NULL);
-    pthread_exit(NULL);
-}
-
-void *Munch2(void *args) {
-    myarg_t *m = (myarg_t *)args;
-    char *input;
-    input = DequeueString(m->in);
-    int count = 0;
-    //change the lower case into upper case
-    while(input!=NULL) {
-        while(input[count]!=endstr && input[count]!=endline) {
-            if(islower(input[count])) {
-                input[count] = toupper(input[count]);
-            }
-            count++;
-        }
-        count = 0;
-        EnqueueString(m->out, input);
-        input = DequeueString(m->in);
-    }
-    EnqueueString(m->out, NULL);
-    pthread_exit(NULL);
-}
-
-void *Writer(void *q) {
-    char *output;
-    output = DequeueString(q);
-    while (output!=NULL){
-        printf("%s",output);
-        free(output);
-        output = DequeueString(q);
-    }
-    pthread_exit(NULL);
-}

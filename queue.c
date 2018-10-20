@@ -1,8 +1,14 @@
 //
+//  main.c
 //  queue.c
+//  Reader.c
+//  Munch1.c
+//  Munch2.c
+//  writer.c
 //
 //  Created by Yanzheng Li on 10/15/18.
-//  Completed by Yanzheng Li and Yi Tong
+//  Completed by Yanzheng Li, net id: 9075265638, cs login: yanzheng
+//  and Yi Tong net id: 9075617911, cs login: ytong
 //  Copyright © 2018 Yanzheng Li. All rights reserved.
 //
 
