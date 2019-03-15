@@ -1,4 +1,4 @@
-    In this home work we realize the producer/consumer problem with 4 threads. Producer cannot produce
+producer/consumer problem with 4 threads. Producer cannot produce
 when the buffer store stuff is full and consumer cannot consume when the buffer is empty. The buffer is 
 implemeted by queue, and the constraint on production and consumption are realized by add monitor on 
 enqueue and dequeue. Enqueue cannot happen when the queue is full unless it is signaled there is new space .
